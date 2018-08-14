@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final utlizzo versione della libreria JasperReports6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PunteggioDomanda" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a875bf6f-7f4a-47e4-8679-a2b5ca855ccb">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="AterUDBandi.xml"/>
+	<property name="com.jaspersoft.studio.unit." value="mm"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<parameter name="IDBANDO" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[DOUBLE_VALUE("2.0")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="IDDOMANDA" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[DOUBLE_VALUE("1.0")]]></defaultValueExpression>
+	</parameter>
+	<queryString language="hql">
+		<![CDATA[Select dom.id.idBando as idBando,
+dom.id.idDomanda as IdDomanda,
+dom.numeroDomanda as numeroDomanda,
+c.descrizioneBreve as descrizionePunteggio,
+p.punteggio as punteggio
+From Domande dom, Bandi b, DomandaPunteggio p, Criteri c
+where b.idBando = dom.id.idBando
+and p.id.idBando = dom.id.idBando
+and p.id.idDomanda = dom.id.idDomanda
+and p.punteggio <> 0
+and c.id.idBando =  b.id.idBando
+and c.id.idCriterio = p.id.idCriterio 
+and b.id.idBando = $P{IDBANDO}
+and dom.id.idDomanda = $P{IDDOMANDA}
+order by c.id.idCriterio]]>
+	</queryString>
+	<field name="idBando" class="java.lang.Double"/>
+	<field name="IdDomanda" class="java.lang.Double"/>
+	<field name="numeroDomanda" class="java.lang.Integer"/>
+	<field name="descrizionePunteggio" class="java.lang.String"/>
+	<field name="punteggio" class="java.lang.Double"/>
+	<variable name="TotPunteggio" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{punteggio}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="17">
+			<staticText>
+				<reportElement x="130" y="0" width="80" height="17" uuid="1fae35e7-0797-4cd9-aab7-0e024ac44931">
+					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.y" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.x" value="mm"/>
+				</reportElement>
+				<text><![CDATA[Punteggio:]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<textField>
+				<reportElement x="155" y="0" width="299" height="17" uuid="8d94335a-158d-477a-996e-b3cde01a10c9">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ad434fc9-6b6c-4a5c-af8f-aca26366f05d"/>
+					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{descrizionePunteggio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="0" width="100" height="17" uuid="2d767973-c332-4851-ae12-e0b676efac50">
+					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{punteggio}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="17">
+			<textField>
+				<reportElement x="455" y="0" width="100" height="17" uuid="999f4387-af58-48ca-9a09-6b4e8ff40197">
+					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.x" value="mm"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$V{TotPunteggio}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="155" y="0" width="200" height="17" uuid="64811783-4cc7-4399-ab31-d50805029ccc">
+					<property name="com.jaspersoft.studio.unit.width" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.y" value="mm"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Totale]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>
