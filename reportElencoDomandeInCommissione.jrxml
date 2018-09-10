@@ -64,6 +64,7 @@ anagrafica.nominativo as nominativo,
 b.annoBando as annoBando,
 b.numeroBando as numeroBando,
 b.dataPubblicazione as dataPubblicazione,
+b.oggetto as oggetto,
 ( Select ind.descrizioneIndirizzo
 From Indirizzi ind
 Where ind.idIndirizzo = anagrafica.idIndirizzo ) as indirizzo,
@@ -74,14 +75,21 @@ dom.numeroComponenti as numeroComponenti,
 from RedditiDomanda redd
 where redd.id.idBando = dom.id.idBando
 and redd.id.idDomanda = dom.id.idDomanda
-group by redd.id.idBando, redd.id.idDomanda) as redditi
-From Domande dom, Anagrafiche anagrafica, Bandi b
+group by redd.id.idBando, redd.id.idDomanda) as redditi,
+sc.dataConvocazione as dataConvocazione
+From Domande dom, Anagrafiche anagrafica, Bandi b, DomandaSessioni ds, SessioniCommissione sc
 Where dom.codiceAnagrafica = anagrafica.codice
 And b.idBando = dom.id.idBando
 And  dom.idCommissione >0
 And dom.idCommissione IS NOT NULL
+And dom.id.idBando = ds.id.idBando
+  and dom.id.idDomanda = ds.id.idDomanda
+  and dom.idCommissione = ds.id.idCommissione
+  and dom.id.idBando = sc.id.idBando
+  and dom.idCommissione = sc.id.idCommissione
+  and ds.id.idSessione = sc.id.idSessione 
 And ( $P{ID_BANDO} is null Or $P{ID_BANDO} < 1.0 Or $P{ID_BANDO} = dom.id.idBando )
-Order by anagrafica.cognomeRagione, anagrafica.nominativo]]>
+Order by dom.numeroDomanda]]>
 	</queryString>
 	<field name="idBando" class="java.lang.Double"/>
 	<field name="IdDomanda" class="java.lang.Double"/>
@@ -111,14 +119,19 @@ Order by anagrafica.cognomeRagione, anagrafica.nominativo]]>
 	<field name="numeroComponenti" class="java.lang.Integer"/>
 	<field name="redditi" class="java.lang.Float"/>
 	<field name="dataPubblicazione" class="java.sql.Date"/>
+	<field name="dataConvocazione" class="java.sql.Date"/>
+	<field name="oggetto" class="java.lang.String"/>
 	<variable name="valutazione_1" class="java.lang.Double" resetType="Column" calculation="Sum">
 		<variableExpression><![CDATA[$F{valutazione}]]></variableExpression>
+	</variable>
+	<variable name="DataCommissione" class="java.sql.Date" resetType="None" calculation="Highest">
+		<variableExpression><![CDATA[$F{dataConvocazione}]]></variableExpression>
 	</variable>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="119" splitType="Stretch">
+		<band height="110" splitType="Stretch">
 			<image scaleImage="RetainShape">
 				<reportElement stretchType="RelativeToBandHeight" x="49" y="0" width="105" height="64" uuid="af9a365f-70cf-4c94-89c0-1ea510277ee0"/>
 				<imageExpression><![CDATA[$P{LOGO}]]></imageExpression>
@@ -145,14 +158,23 @@ Order by anagrafica.cognomeRagione, anagrafica.nominativo]]>
 				<textFieldExpression><![CDATA[$P{INTESTAZIONE3}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement style="Default" mode="Transparent" x="49" y="80" width="730" height="39" backcolor="#F0F0F0" uuid="eb05e9e6-03ee-4489-a6c2-57e6d4979380"/>
+				<reportElement style="Default" mode="Transparent" x="49" y="90" width="730" height="20" backcolor="#F0F0F0" uuid="eb05e9e6-03ee-4489-a6c2-57e6d4979380"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Arial" size="14" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Domande presentate in commissione " +
-( $F{numeroBando} == null ? "" : " BANDO DI CONCORSO N. " +   $F{numeroBando} ) +
+				<textFieldExpression><![CDATA[( $F{numeroBando} == null ? "" : "BANDO DI CONCORSO N. " +   $F{numeroBando} ) +
 ( $F{annoBando} == null ? "" : "/" + $F{annoBando} ) +
-( $F{dataPubblicazione} == null ? "" : " del " + DateFormat.getDateInstance(DateFormat.LONG).format($F{dataPubblicazione}) )]]></textFieldExpression>
+( $F{dataPubblicazione} == null ? "" : " del " + DateFormat.getDateInstance(DateFormat.LONG).format($F{dataPubblicazione}) ) + 
+( $F{oggetto} == null ? "" : " - " + $F{oggetto} )]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="Default" mode="Transparent" x="49" y="69" width="730" height="18" backcolor="#F0F0F0" uuid="ba8201d7-4ec3-4481-9b59-ad3abd7a54e0">
+					<property name="com.jaspersoft.studio.unit.x" value="mm"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Domande presentate in commissione in data " + DateFormat.getDateInstance(DateFormat.LONG).format($V{DataCommissione})]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
